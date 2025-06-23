@@ -1,31 +1,32 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:rest/screens/signup_screen.dart';
+import 'package:rest/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isLoading = false;
 
-  Future<void> login() async {
+  Future<void> signup() async {
     setState(() => isLoading = true);
 
     try {
       final response = await http.post(
-        Uri.parse('https://reqres.in/api/login'),
+        Uri.parse('https://reqres.in/api/register'),
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'reqres-free-v1', 
+          'x-api-key': 'reqres-free-v1',
         },
         body: jsonEncode({
           "email": emailController.text.trim(),
@@ -39,23 +40,24 @@ class _LoginScreenState extends State<LoginScreen> {
         final data = jsonDecode(response.body);
         final token = data['token'];
 
-        // Save token
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
 
-        // Navigate to Home
         Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       } else {
         final error = jsonDecode(response.body)['error'];
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed: $error")),
+          SnackBar(content: Text("Signup failed: $error")),
         );
       }
     } catch (e) {
       setState(() => isLoading = false);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Something went wrong: $e")),
       );
@@ -71,8 +73,10 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const Icon(Icons.lock, size: 100, color: Colors.blue),
+              const Icon(Icons.person_add, size: 100, color: Colors.blue),
               const SizedBox(height: 30),
+              _buildTextField(nameController, "Name", Icons.person),
+              const SizedBox(height: 20),
               _buildTextField(emailController, "Email", Icons.email),
               const SizedBox(height: 20),
               _buildTextField(passwordController, "Password", Icons.lock, obscure: true),
@@ -80,28 +84,29 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : login,
+                  onPressed: isLoading ? null : signup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text("Login", style: TextStyle(fontSize: 18)),
+                      : const Text("Sign Up", style: TextStyle(fontSize: 18)),
                 ),
               ),
-
-              const SizedBox(height: 20),
+                   const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
                   );
                 },
                 child: const Text(
-                  "Don't have an account? Sign Up",
+                  "Already have an account? Sign In",
                   style: TextStyle(color: Colors.blue, fontSize: 16),
                 ),
               ),

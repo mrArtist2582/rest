@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rest/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('App shows HomeScreen when logged in', (
+    WidgetTester tester,
+  ) async {
+    // Mock a token to simulate login
+    SharedPreferences.setMockInitialValues({'token': 'dummy-token'});
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getString('token') != null;
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpWidget(const MyApp(isLoggedIn: false));
+
+    // Adjust the following expectations based on your actual HomeScreen content
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(
+      find.text('Api Demo'),
+      findsOneWidget,
+    ); // Assuming AppBar title is 'Api Demo'
+  });
+
+  testWidgets('App shows LoginScreen when not logged in', (
+    WidgetTester tester,
+  ) async {
+    // Clear token to simulate logged-out state
+    SharedPreferences.setMockInitialValues({});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getString('token') != null;
+
+    await tester.pumpWidget(MyApp(isLoggedIn: isLoggedIn));
+
+    // Adjust this based on your LoginScreen content
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(
+      find.text('Login'),
+      findsOneWidget,
+    ); // Assuming button/text says "Login"
   });
 }
