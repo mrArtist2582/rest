@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
     Navigator.pushAndRemoveUntil(
+      // ignore: use_build_context_synchronously
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       } else {
         final error = jsonDecode(response.body);
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${error['error']['message']}')),
         );
@@ -52,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint("Weather fetch error: $e");
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(const SnackBar(content: Text("Network or API error")));
       setState(() => weatherData = null); 
