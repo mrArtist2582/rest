@@ -22,11 +22,11 @@ class user_model {
     email = json['email'];
     phone = json['phone'];
     address =
-        json['address'] != null ? new Address.fromJson(json['address']) : null;
+        json['address'] != null ? Address.fromJson(json['address']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
     data['username'] = username;
@@ -51,7 +51,7 @@ class Address {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['city'] = city;
     data['country'] = country;
     return data;
